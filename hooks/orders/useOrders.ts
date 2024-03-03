@@ -21,9 +21,17 @@ export interface IMenuItem{
   imageUrl?: string;
 }
 
-export interface IAddOnItem{
   
-}
+  export interface IAddOnItem {
+    _id: string;
+    name: string,
+    description: string,
+    category: string,
+    price: number,
+    createdBy: string | IUser,
+    imageUrl?: string;
+
+  }
 export interface IOrders {
   _id: string;
   startTime: string | Date;
@@ -32,7 +40,7 @@ export interface IOrders {
   city: string;
   status: string;
   phone: string;
-  items: {menuItemId: IMenuItem, quantity: number, addOns: IAddOnItem[]}[]
+  items: {menuItemId: IMenuItem, quantity: number, addOns: {addOnId: IAddOnItem, quantity: number}[]}[]
   createdBy: IUser;
   createdAt: string | Date;
   updatedAt: string | Date;

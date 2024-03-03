@@ -24,4 +24,9 @@ export const sideBarItems = [
     link: "/admin/menu",
     logo: <GoListUnordered />,
   },
+  {
+    title: "AddOn",
+    link: "/admin/addon",
+    logo: <GoListUnordered />,
+  },
 ];

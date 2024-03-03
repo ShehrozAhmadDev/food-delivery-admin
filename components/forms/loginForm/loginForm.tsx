@@ -72,7 +72,7 @@ const LoginForm = () => {
           </div>
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-orange-600 to-yellow-400 py-3 rounded-md hover:opacity-80 transition-all duration-300"
+            className="w-full bg-gradient-to-r from-red-600 to-red-400 py-3 rounded-md hover:opacity-80 transition-all duration-300"
           >
             Login
           </button>

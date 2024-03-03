@@ -6,60 +6,60 @@ import MenuModal from "@/components/modals/menuModal/menuModal";
 import Image from "next/image";
 import { FaRegTrashAlt, FaEdit } from "react-icons/fa";
 import DeleteMenuModal from "@/components/modals/deleteMenuModal/DeleteMenuModal";
+import Addon from "@/services/addon";
+import AddonModal from "@/components/modals/addonModal/addonModal";
+import DeleteAddonModal from "@/components/modals/deleteAddonModal/DeleteAddonModal";
 
-export interface IMenu {
+export interface IAddOn {
   _id?: string;
   name: string;
   description: string;
-  category: string;
   price: number | string;
-  isFeatured: boolean;
   imageUrl?: string;
   createdAt?: Date | string;
-  quantity: number | string;
 }
 
-function MenuSection() {
+function AddonSection() {
   let token = Cookie?.get("token");
-  const [menuData, setMenuData] = useState<IMenu[]>([]);
-  const [menuModal, setMenuModal] = useState<boolean>(false);
-  const [deleteMenuModal, setDeleteMenuModal] = useState<boolean>(false);
+  const [addonData, setAddonData] = useState<IAddOn[]>([]);
+  const [addonModal, setAddonModal] = useState<boolean>(false);
+  const [deleteAddonModal, setDeleteAddonModal] = useState<boolean>(false);
 
-  const [currentMenu, setCurrentMenu] = useState<IMenu | null>(null);
+  const [currentAddon, setCurrentAddon] = useState<IAddOn | null>(null);
 
-  const handleGetAllMenu = async () => {
+  const handleGetAllAddon = async () => {
     try {
-      const data = await Menu.getAllMenuItems(token);
+      const data = await Addon.getAllAddonItems(token);
       console.log(data);
       if (data?.status === 200) {
-        setMenuData(data.menu);
+        setAddonData(data.addon);
       }
     } catch (error) {
       console.log(error);
     }
   };
   useEffect(() => {
-    handleGetAllMenu();
+    handleGetAllAddon();
   }, []);
 
   return (
     <div className="mx-auto">
       <div className="flex w-full justify-between text-white">
-        <h2 className="text-2xl font-bold my-8">Menu Table</h2>
+        <h2 className="text-2xl font-bold my-8">Addon Table</h2>
         <span className="flex items-center space-x-1">
           <h3 className="font-bold">Total Items: </h3>
-          <p>{menuData?.length}</p>
+          <p>{addonData?.length}</p>
         </span>
       </div>
       <div className="w-full flex justify-end py-3">
         <button
           onClick={() => {
-            setCurrentMenu(null);
-            setMenuModal(true);
+            setCurrentAddon(null);
+            setAddonModal(true);
           }}
           className="text-white bg-gradient-to-r from-red-600 to-red-400 rounded-lg hover:opacity-70 transition duration-300 p-2 w-[200px]"
         >
-          Add Menu
+          Add Addon Item
         </button>
       </div>
       <div className="overflow-x-auto">
@@ -69,41 +69,39 @@ function MenuSection() {
               <th className="py-3 px-6 text-left">Image</th>
               <th className="py-3 px-6 text-left">Name</th>
               <th className="py-3 px-6 text-left">Description</th>
-              <th className="py-3 px-6 text-left">Category</th>
               <th className="py-3 px-6 text-left">Price</th>
               <th className="py-3 px-6 text-left">Created At</th>
               <th className="py-3 px-6 text-left">Actions</th>
             </tr>
           </thead>
           <tbody className="text-white">
-            {menuData?.map((menu) => (
+            {addonData?.map((addon) => (
               <tr
-                key={menu._id}
+                key={addon._id}
                 className="hover:bg-gray-600 hover:cursor-pointer"
               >
                 <td className="py-4 px-6">
                   <Image
-                    src={menu.imageUrl ?? ""}
+                    src={addon.imageUrl ?? ""}
                     alt="menu-image"
                     width={40}
                     height={40}
                   ></Image>
                 </td>
-                <td className="py-4 px-6">{menu?.name}</td>
-                <td className="py-4 px-6">{menu?.description}</td>
-                <td className="py-4 px-6">{menu?.category}</td>
-                <td className="py-4 px-6">{menu.price}</td>
+                <td className="py-4 px-6">{addon?.name}</td>
+                <td className="py-4 px-6">{addon?.description}</td>
+                <td className="py-4 px-6">{addon.price}</td>
                 <td className="py-4 px-6">
-                  {menu?.createdAt
-                    ? moment(menu?.createdAt).format("MMM DD, YYYY")
+                  {addon?.createdAt
+                    ? moment(addon?.createdAt).format("MMM DD, YYYY")
                     : "N/A"}
                 </td>
                 <td className="py-4 px-6">
                   <div className="flex space-x-3">
                     <button
                       onClick={() => {
-                        setCurrentMenu(menu);
-                        setMenuModal(true);
+                        setCurrentAddon(addon);
+                        setAddonModal(true);
                       }}
                       className="text-white bg-gradient-to-r from-red-600 to-red-400 rounded-lg hover:opacity-70 transition duration-300 p-2"
                     >
@@ -111,8 +109,8 @@ function MenuSection() {
                     </button>
                     <button
                       onClick={() => {
-                        setCurrentMenu(menu);
-                        setDeleteMenuModal(true);
+                        setCurrentAddon(addon);
+                        setDeleteAddonModal(true);
                       }}
                       className="text-white bg-gradient-to-r from-red-600 to-red-400 rounded-lg hover:opacity-70 transition duration-300 p-2 "
                     >
@@ -125,29 +123,29 @@ function MenuSection() {
           </tbody>
         </table>
       </div>
-      <MenuModal
+      <AddonModal
         loading={false}
-        isOpen={menuModal}
+        isOpen={addonModal}
         closeModal={() => {
-          setCurrentMenu(null);
-          setMenuModal(false);
+          setCurrentAddon(null);
+          setAddonModal(false);
         }}
-        currentMenu={currentMenu}
-        setCurrentMenu={setCurrentMenu}
-        handleGetAllMenu={handleGetAllMenu}
+        currentAddon={currentAddon}
+        setCurrentAddon={setCurrentAddon}
+        handleGetAllAddon={handleGetAllAddon}
       />
-      <DeleteMenuModal
-        isOpen={deleteMenuModal}
+      <DeleteAddonModal
+        isOpen={deleteAddonModal}
         closeModal={() => {
-          setCurrentMenu(null);
-          setDeleteMenuModal(false);
+          setCurrentAddon(null);
+          setDeleteAddonModal(false);
         }}
-        currentMenu={currentMenu}
-        setCurrentMenu={setCurrentMenu}
-        handleGetAllMenu={handleGetAllMenu}
+        currentAddon={currentAddon}
+        setCurrentAddon={setCurrentAddon}
+        handleGetAllAddon={handleGetAllAddon}
       />
     </div>
   );
 }
 
-export default MenuSection;
+export default AddonSection;

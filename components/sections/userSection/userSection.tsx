@@ -31,27 +31,29 @@ function UserSection() {
           <p>{userData?.length}</p>
         </span>
       </div>
-      <table className="min-w-full bg-transparent overflow-hidden shadow-md rounded-md border border-white">
-        <thead className="bg-gray-800 text-white">
-          <tr>
-            <th className="py-3 px-6 text-left">Name</th>
-            <th className="py-3 px-6 text-left">Email</th>
-            <th className="py-3 px-6 text-left">Verified</th>
-          </tr>
-        </thead>
-        <tbody className="text-white">
-          {userData?.map((user) => (
-            <tr
-              key={user._id}
-              className="hover:bg-gray-600 hover:cursor-pointer"
-            >
-              <td className="py-4 px-6">{user?.fullName}</td>
-              <td className="py-4 px-6">{user?.email}</td>
-              <td className="py-4 px-6">{user?.verified ? "Yes" : "No"}</td>
+      <div className="overflow-x-auto">
+        <table className="w-full bg-transparent overflow-hidden shadow-md rounded-md border border-white">
+          <thead className="bg-gray-800 text-white">
+            <tr>
+              <th className="py-3 px-6 text-left">Name</th>
+              <th className="py-3 px-6 text-left">Email</th>
+              <th className="py-3 px-6 text-left">Verified</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="text-white">
+            {userData?.map((user) => (
+              <tr
+                key={user._id}
+                className="hover:bg-gray-600 hover:cursor-pointer"
+              >
+                <td className="py-4 px-6">{user?.fullName}</td>
+                <td className="py-4 px-6">{user?.email}</td>
+                <td className="py-4 px-6">Yes</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

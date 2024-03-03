@@ -1,71 +1,66 @@
 import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
 import Cookie from "js-cookie";
-import { IMenu } from "@/components/sections/menuSection/MenuSection";
+import { IAddOn } from "@/components/sections/addonSection/AddOnSection";
 import Menu from "@/services/menu";
 import { toast } from "react-toastify";
 import UploadImage from "@/components/forms/uploadImage/uploadImage";
 import "react-perfect-scrollbar/dist/css/styles.css";
 import PerfectScrollbar from "react-perfect-scrollbar";
+import Addon from "@/services/addon";
 
-interface MenuModalProps {
+interface AddonModalProps {
   loading: boolean;
   isOpen: boolean;
-  currentMenu: IMenu | null;
-  setCurrentMenu: (value: IMenu | null) => void;
+  currentAddon: IAddOn | null;
+  setCurrentAddon: (value: IAddOn | null) => void;
   closeModal: () => void;
-  handleGetAllMenu: () => void;
+  handleGetAllAddon: () => void;
 }
 
-const initialMenu = {
+const initialAddon = {
   name: "",
   description: "",
-  category: "",
-  isFeatured: false,
   price: "",
-  quantity: 1,
 };
 
-function MenuModal({
+function AddonModal({
   loading,
   isOpen,
   closeModal,
-  currentMenu,
-  setCurrentMenu,
-  handleGetAllMenu,
-}: MenuModalProps) {
+  currentAddon,
+  setCurrentAddon,
+  handleGetAllAddon,
+}: AddonModalProps) {
   const [selectedFile, setSelectedFile] = useState(null);
-  const [menuData, setMenuData] = useState<IMenu>(initialMenu);
+  const [addonData, setAddonData] = useState<IAddOn>(initialAddon);
   const [loadingS, setLoading] = useState(false);
   const handleFieldChange = (e: any) => {
-    setMenuData((prevData) => ({
+    setAddonData((prevData) => ({
       ...prevData,
       [e.target.name]: e.target.value,
     }));
   };
 
-  const handleAddNewMenuItem = async (e: any) => {
+  const handleAddNewAddonItem = async (e: any) => {
     try {
       e.preventDefault();
       setLoading(true);
       const token = Cookie.get("token");
       console.log(selectedFile);
       const formData: any = new FormData();
-      formData.append("name", menuData.name);
-      formData.append("description", menuData.description);
-      formData.append("category", menuData.category);
-      formData.append("isFeatured", menuData.isFeatured);
-      formData.append("quantity", menuData.quantity);
-      formData.append("price", menuData.price);
+      formData.append("name", addonData.name);
+      formData.append("description", addonData.description);
+      formData.append("price", addonData.price);
       formData.append("thumbnail", selectedFile);
-      const data = await Menu.addMenuItem(formData, token);
+      const data = await Addon.addAddonItem(formData, token);
       if (data.status === 200) {
         closeModal();
-        setCurrentMenu(null);
-        setMenuData(initialMenu);
-        toast.success("Menu Item Added");
+        setCurrentAddon(null);
+        setAddonData(initialAddon);
+        toast.success("Addon Item Added");
         setSelectedFile(null);
-        handleGetAllMenu();
+        handleGetAllAddon();
         setLoading(false);
       }
     } catch (error) {
@@ -74,7 +69,7 @@ function MenuModal({
     }
   };
 
-  const handleUpdateMenuItem = async (e: any) => {
+  const handleUpdateAddonItem = async (e: any) => {
     try {
       e.preventDefault();
       setLoading(true);
@@ -82,27 +77,25 @@ function MenuModal({
       const token = Cookie.get("token");
       console.log(selectedFile);
       const formData: any = new FormData();
-      formData.append("name", menuData.name);
-      formData.append("description", menuData.description);
-      formData.append("category", menuData.category);
-      formData.append("isFeatured", menuData.isFeatured);
-      formData.append("quantity", menuData.quantity);
-      formData.append("price", menuData.price);
+      formData.append("name", addonData.name);
+      formData.append("description", addonData.description);
+      formData.append("price", addonData.price);
+      formData.append("thumbnail", selectedFile);
       if (selectedFile) {
         formData.append("thumbnail", selectedFile);
       }
       const data = await Menu.updateMenuItem(
-        menuData._id ?? "",
+        addonData._id ?? "",
         formData,
         token
       );
       if (data.status === 200) {
         closeModal();
         toast.success("Menu Item Updated");
-        setCurrentMenu(null);
-        setMenuData(initialMenu);
+        setCurrentAddon(null);
+        setAddonData(initialAddon);
         setSelectedFile(null);
-        handleGetAllMenu();
+        handleGetAllAddon();
         setLoading(false);
       }
     } catch (error) {
@@ -112,19 +105,19 @@ function MenuModal({
   };
 
   useEffect(() => {
-    if (currentMenu) setMenuData(currentMenu);
+    if (currentAddon) setAddonData(currentAddon);
 
     return () => {
-      setMenuData(initialMenu);
+      setAddonData(initialAddon);
       setSelectedFile(null);
     };
-  }, [currentMenu]);
+  }, [currentAddon]);
 
   return (
     <Modal
       isOpen={isOpen}
       onRequestClose={closeModal}
-      contentLabel="Add Menu"
+      contentLabel="Add Addon"
       className="absolute top-1/2 left-1/2 transform focus:outline-none -translate-x-1/2 -translate-y-1/2 bg-black p-10 rounded-lg shadow-lg"
       overlayClassName="fixed inset-0 bg-black bg-opacity-25 backdrop-filter backdrop-blur-sm flex justify-center items-center"
       ariaHideApp={false}
@@ -136,18 +129,18 @@ function MenuModal({
           <PerfectScrollbar>
             <div className="max-h-[calc(100vh-90px)] overflow-y-auto no-scrollbar text-white px-5">
               <h1 className="mx-auto my-3 text-2xl text-center">
-                {currentMenu ? "Update Menu Item" : "Add New Item"}
+                {currentAddon ? "Update Addon Item" : "Add New Item"}
               </h1>
               <form
                 onSubmit={
-                  currentMenu ? handleUpdateMenuItem : handleAddNewMenuItem
+                  currentAddon ? handleUpdateAddonItem : handleAddNewAddonItem
                 }
               >
                 <div className="mb-6">
                   <p className="text-gray-400 font-bold my-1">Name:</p>
                   <input
                     placeholder="Name"
-                    value={menuData.name}
+                    value={addonData.name}
                     name="name"
                     onChange={handleFieldChange}
                     className="w-full px-4 py-3 rounded-md focus:outline-none bg-[#2f2f2f]"
@@ -158,19 +151,8 @@ function MenuModal({
                   <p className="text-gray-400 font-bold my-1">Description:</p>
                   <textarea
                     placeholder="Description"
-                    value={menuData.description}
+                    value={addonData.description}
                     name="description"
-                    onChange={handleFieldChange}
-                    className="w-full px-4 py-3 rounded-md focus:outline-none bg-[#2f2f2f]"
-                    required
-                  />
-                </div>
-                <div className="mb-6">
-                  <p className="text-gray-400 font-bold my-1">Category:</p>
-                  <input
-                    placeholder="Category"
-                    value={menuData.category}
-                    name="category"
                     onChange={handleFieldChange}
                     className="w-full px-4 py-3 rounded-md focus:outline-none bg-[#2f2f2f]"
                     required
@@ -179,7 +161,7 @@ function MenuModal({
                 <div className="mb-6 w-full">
                   <p className="text-gray-400 font-bold my-1">Upload Image:</p>
                   <UploadImage
-                    image={menuData.imageUrl}
+                    image={addonData.imageUrl}
                     selectedFile={selectedFile}
                     setSelectedFile={setSelectedFile}
                   />
@@ -189,56 +171,13 @@ function MenuModal({
                   <p className="text-gray-400 font-bold my-1">Price:</p>
                   <input
                     placeholder="Price"
-                    value={menuData.price}
+                    value={addonData.price}
                     name="price"
                     type="number"
                     onChange={handleFieldChange}
                     className="w-full px-4 py-3 rounded-md focus:outline-none bg-[#2f2f2f]"
                     required
                   />
-                </div>
-                <div className="mb-6">
-                  <p className="text-gray-400 font-bold my-1">Quantity:</p>
-                  <input
-                    placeholder="Quantity"
-                    value={menuData.quantity}
-                    name="quantity"
-                    type="number"
-                    onChange={handleFieldChange}
-                    className="w-full px-4 py-3 rounded-md focus:outline-none bg-[#2f2f2f]"
-                  />
-                </div>
-                <div className=" w-full mb-6">
-                  <p className="text-gray-400 font-bold my-1">
-                    Do you want to feature this item?
-                  </p>
-                  <div className="relative">
-                    <label className="flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="hidden"
-                        checked={menuData.isFeatured}
-                        name="isFeatured"
-                        onChange={(e: any) => {
-                          setMenuData((prevData) => ({
-                            ...prevData,
-                            [e.target.name]: e.target.checked,
-                          }));
-                        }}
-                      />
-                      <div className="toggle__line w-10 h-4 bg-gray-400 rounded-full shadow-inner"></div>
-                      <div
-                        className={`toggle__dot absolute w-6 h-6 bg-white rounded-full shadow inset-y-0 left-0 transform ${
-                          menuData.isFeatured
-                            ? "translate-x-full"
-                            : "translate-x-0"
-                        }`}
-                      ></div>
-                      <div className="ml-3 text-gray-700 font-medium">
-                        {menuData.isFeatured ? "Yes" : "No"}
-                      </div>
-                    </label>
-                  </div>
                 </div>
 
                 <button
@@ -248,7 +187,7 @@ function MenuModal({
                   {loadingS ? (
                     <>Please Wait...</>
                   ) : (
-                    <>{currentMenu ? "Edit" : "Add"}</>
+                    <>{currentAddon ? "Edit" : "Add"}</>
                   )}
                 </button>
               </form>
@@ -260,4 +199,4 @@ function MenuModal({
   );
 }
 
-export default MenuModal;
+export default AddonModal;

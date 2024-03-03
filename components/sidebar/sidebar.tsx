@@ -26,20 +26,20 @@ const Sidebar = () => {
         className="w-fit flex items-center mb-12 text-white mr-6 space-x-2 cursor-pointer"
       >
         <Image
-          src={"/logo.png"}
+          src={"/images/acnc.svg"}
           alt="logo"
           width={50}
           height={50}
           className="w-[40px] object-contain"
         />
-        <p className="text-orange-600 text-xl font-bold">Food Delivery</p>
+        <p className="text-red-600 text-xl font-bold">ACNC Admin</p>
       </div>
 
       {sideBarItems?.map((item) => (
         <div
           className={`flex space-x-2 items-center cursor-pointer mb-6 hover:opacity-70 transition-all duration-300 p-2 ${
             param === item.link
-              ? "text-white bg-gradient-to-r from-orange-600 to-yellow-400 rounded-lg"
+              ? "text-white bg-gradient-to-r from-red-600 to-red-400 rounded-lg"
               : ""
           }`}
           onClick={() => {

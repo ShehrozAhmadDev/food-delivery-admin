@@ -1,35 +1,35 @@
 import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
 import Cookie from "js-cookie";
-import { IMenu } from "@/components/sections/menuSection/MenuSection";
-import Menu from "@/services/menu";
 import { toast } from "react-toastify";
+import { IAddOn } from "@/components/sections/addonSection/AddOnSection";
+import Addon from "@/services/addon";
 
-interface IDeleteMenuModalProps {
+interface IDeleteAddonModalProps {
   isOpen: boolean;
-  currentMenu: IMenu | null;
+  currentAddon: IAddOn | null;
   closeModal: () => void;
-  setCurrentMenu: (value: IMenu | null) => void;
-  handleGetAllMenu: () => void;
+  setCurrentAddon: (value: IAddOn | null) => void;
+  handleGetAllAddon: () => void;
 }
 
-function DeleteMenuModal({
+function DeleteAddonModal({
   isOpen,
   closeModal,
-  currentMenu,
-  handleGetAllMenu,
-}: IDeleteMenuModalProps) {
+  currentAddon,
+  handleGetAllAddon,
+}: IDeleteAddonModalProps) {
   let token = Cookie?.get("token");
 
-  const handleDeleteMenuItem = async (e: any) => {
+  const handleDeleteAddonItem = async (e: any) => {
     try {
       e.preventDefault();
-      const data = await Menu.deleteMenuItem(currentMenu?._id, token);
+      const data = await Addon.deleteAddonItem(currentAddon?._id, token);
       console.log(data);
       if (data.status === 200) {
         closeModal();
-        toast.success("Menu Item Deleted");
-        handleGetAllMenu();
+        toast.success("Addon Item Deleted");
+        handleGetAllAddon();
       }
     } catch (error) {
       console.error(error);
@@ -46,10 +46,10 @@ function DeleteMenuModal({
       ariaHideApp={false}
     >
       <div className="w-[600px]">
-        <h1>Are you sure you want to delete this menu item?</h1>
+        <h1>Are you sure you want to delete this addon item?</h1>
         <div className="flex items-center space-x-2 justify-end w-full">
           <button
-            onClick={handleDeleteMenuItem}
+            onClick={handleDeleteAddonItem}
             className="w-full bg-gradient-to-r from-red-600 to-red-400 py-3 rounded-md hover:opacity-80 transition-all duration-300"
           >
             Delete
@@ -66,4 +66,4 @@ function DeleteMenuModal({
   );
 }
 
-export default DeleteMenuModal;
+export default DeleteAddonModal;

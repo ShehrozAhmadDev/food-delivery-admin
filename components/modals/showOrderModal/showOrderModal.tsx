@@ -53,11 +53,21 @@ function ShowOrderModal({
     cartItems: {
       menuItemId: IMenuItem;
       quantity: number;
-      addOns: IAddOnItem[];
+      addOns: { addOnId: IAddOnItem; quantity: number }[];
     }[]
   ) => {
-    return cartItems.reduce((total, cartItem) => {
-      return total + cartItem.menuItemId.price * cartItem.quantity;
+    return cartItems.reduce((accumulator, item) => {
+      const itemPrice = (item.quantity || 0) * item.menuItemId.price;
+
+      // Calculate the total price of addons
+      const addonsPrice = item.addOns.reduce(
+        (addonAccumulator, addon) =>
+          addonAccumulator + (addon.quantity || 0) * addon.addOnId.price,
+        0
+      );
+
+      // Add the total price of the item and addons to the accumulator
+      return accumulator + itemPrice + addonsPrice;
     }, 0);
   };
   return (
@@ -103,27 +113,55 @@ function ShowOrderModal({
               {currentOrder.items.length > 0 ? (
                 <div>
                   {currentOrder.items.map((cartItem, index) => (
-                    <div
-                      key={index}
-                      className="mb-4 p-4 bg-[#2f2f2f] rounded-md flex items-center"
-                    >
-                      <img
-                        src={cartItem.menuItemId.imageUrl}
-                        alt={cartItem.menuItemId.name}
-                        className="w-16 h-16 object-contain rounded-md mr-4"
-                      />
-                      <div>
-                        <h3 className="text-lg font-semibold">
-                          {cartItem.menuItemId.name}
-                        </h3>
-                        <p className="text-gray-200">
-                          {cartItem.menuItemId.description}
-                        </p>
-                        <p className="text-gray-200 mt-1">
-                          Quantity: {cartItem.quantity} - Total: $
-                          {cartItem.menuItemId.price * cartItem.quantity}
-                        </p>
+                    <div>
+                      <div
+                        key={index}
+                        className="mb-4 p-4 bg-[#2f2f2f] rounded-md flex items-center"
+                      >
+                        <img
+                          src={cartItem.menuItemId.imageUrl}
+                          alt={cartItem.menuItemId.name}
+                          className="w-16 h-16 object-contain rounded-md mr-4"
+                        />
+                        <div>
+                          <h3 className="text-lg font-semibold">
+                            {cartItem.menuItemId.name}
+                          </h3>
+                          <p className="text-gray-200">
+                            {cartItem.menuItemId.description}
+                          </p>
+                          <p className="text-gray-200 mt-1">
+                            Quantity: {cartItem.quantity} - Total: $
+                            {cartItem.menuItemId.price * cartItem.quantity}
+                          </p>
+                        </div>
                       </div>
+                      {cartItem.addOns.map((addon, id) => (
+                        <div
+                          key={id}
+                          className="mb-4 p-4 bg-[#2f2f2f] rounded-md flex items-center"
+                        >
+                          <img
+                            src={addon.addOnId.imageUrl}
+                            alt={addon.addOnId.name}
+                            className="w-6 h-6 object-cover rounded-md mr-4"
+                          />
+                          <div className="w-full justify-between flex">
+                            <div>
+                              <h3 className="text-lg font-semibold">
+                                {addon.addOnId.name}
+                              </h3>
+                              <p className="text-gray-200 mt-1">
+                                Quantity: {addon.quantity} - Total: Rs.
+                                {addon.addOnId.price * addon.quantity}
+                              </p>
+                            </div>
+                            <div className="bg-red-700 h-fit text-white text-sm p-1 rounded-lg">
+                              Addon
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   ))}
 
@@ -150,7 +188,7 @@ function ShowOrderModal({
             <div className="flex justify-end mt-5">
               <button
                 onClick={updateCurrentOrderStatus}
-                className="text-white bg-gradient-to-r from-orange-500 to-yellow-300 rounded-lg hover:opacity-70 transition duration-300 p-2 w-[200px]"
+                className="text-white bg-gradient-to-r from-red-500 to-red-300 rounded-lg hover:opacity-70 transition duration-300 p-2 w-[200px]"
               >
                 Save
               </button>
