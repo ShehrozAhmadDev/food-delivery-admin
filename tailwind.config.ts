@@ -17,7 +17,6 @@ const config: Config = {
         "pastel-blue": "#bae1ff",
         "pastel-green": "#baffc9",
         "pastel-red": "#ffb3ba",
-        "pastel-red": "#ffffba",
       },
     },
   },
