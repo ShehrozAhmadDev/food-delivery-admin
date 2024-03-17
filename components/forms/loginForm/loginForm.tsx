@@ -18,9 +18,12 @@ const LoginForm = () => {
     Login.postLogin(email, password)
       .then((data) => {
         console.log(data);
-        if (data?.status === 200 && data?.user?.role !== "admin") {
+        if (data?.status === 200 && data?.user?.role === "user") {
           toast.error("This isn't admin acount");
-        } else if (data?.status === 200 && data?.user?.role === "admin") {
+        } else if (
+          data?.status === 200 &&
+          (data?.user?.role === "admin" || data?.user?.role === "superadmin")
+        ) {
           Cookie.set("token", data?.token);
           Cookie.set("role", data?.user?.role);
           dispatch(
@@ -28,8 +31,6 @@ const LoginForm = () => {
               _id: data?.user?._id,
               fullName: data?.user?.fullName,
               email: data?.user?.email,
-              stripeId: data?.user?.stripeId,
-              subscriptionId: data?.user?.subscriptionId,
             })
           );
           toast.success("Logged In...");

@@ -11,9 +11,13 @@ export default function middleware(req: NextRequest) {
   if (
     verify &&
     verify.value &&
-    role.value === "admin" &&
+    (role.value === "admin" || role.value === "superadmin" ) &&
     (pathname.startsWith("/login") || pathname === "/")
   ) {
     return NextResponse.redirect(new URL("/admin/dashboard", req?.url));
+  }
+  if(verify &&
+    verify.value && role.value !=="superadmin" && (pathname === "/admin/menu" || pathname === "/admin/addon")){
+      return NextResponse.redirect(new URL("/no-access", req?.url));
   }
 }

@@ -17,6 +17,7 @@ export interface IMenu {
   imageUrl?: string;
   createdAt?: Date | string;
   quantity: number | string;
+  flavours?: string[];
 }
 
 function MenuSection() {
