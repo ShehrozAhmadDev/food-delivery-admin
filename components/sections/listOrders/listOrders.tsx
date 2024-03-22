@@ -53,6 +53,8 @@ const ListOrders = () => {
                           {order?.status}
                         </p>
                       </span>
+                      <p>Rs: {order.price}</p>
+
                       <p className="text-sm mt-2">
                         by {order?.createdBy?.fullName}
                       </p>

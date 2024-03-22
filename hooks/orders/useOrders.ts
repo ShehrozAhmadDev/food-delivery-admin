@@ -38,6 +38,7 @@ export interface IOrders {
   endTime: string | Date;
   address: string;
   city: string;
+  price: number;
   status: string;
   phone: string;
   items: {menuItemId: IMenuItem, quantity: number, addOns: {addOnId: IAddOnItem, quantity: number}[]}[]
