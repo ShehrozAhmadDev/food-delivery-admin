@@ -25,6 +25,11 @@ export const sideBarItems = [
     logo: <GoListUnordered />,
   },
   {
+    title: "Banners",
+    link: "/admin/banner",
+    logo: <HiOutlineUsers />,
+  },
+  {
     title: "AddOn",
     link: "/admin/addon",
     logo: <GoListUnordered />,
