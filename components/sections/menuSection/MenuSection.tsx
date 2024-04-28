@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Cookie from "js-cookie";
 import moment from "moment";
 import Menu from "@/services/menu";
-import MenuModal from "@/components/modals/menuModal/menuModal";
+import MenuModal, { IVariations } from "@/components/modals/menuModal/menuModal";
 import Image from "next/image";
 import { FaRegTrashAlt, FaEdit } from "react-icons/fa";
 import DeleteMenuModal from "@/components/modals/deleteMenuModal/DeleteMenuModal";
@@ -17,7 +17,7 @@ export interface IMenu {
   imageUrl?: string;
   createdAt?: Date | string;
   quantity: number | string;
-  flavours?: string[];
+  flavours?: IVariations[];
 }
 
 function MenuSection() {

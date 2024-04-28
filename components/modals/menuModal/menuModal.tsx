@@ -27,6 +27,8 @@ const initialMenu = {
   quantity: 1,
 };
 
+export interface IVariations { flavour: string , sizes: {size: string, price: number}[]}
+ 
 function MenuModal({
   loading,
   isOpen,
@@ -38,7 +40,7 @@ function MenuModal({
   const [selectedFile, setSelectedFile] = useState(null);
   const [menuData, setMenuData] = useState<IMenu>(initialMenu);
   const [loadingS, setLoading] = useState(false);
-  const [flavours, setFlavours] = useState<string[]>([""]);
+  const [flavours, setFlavours] = useState<IVariations[]>([]);
   const handleFieldChange = (e: any) => {
     setMenuData((prevData) => ({
       ...prevData,
@@ -58,7 +60,6 @@ function MenuModal({
       e.preventDefault();
       setLoading(true);
       const token = Cookie.get("token");
-      console.log(selectedFile);
       const formData: any = new FormData();
       formData.append("name", menuData.name);
       formData.append("description", menuData.description);
@@ -67,6 +68,7 @@ function MenuModal({
       formData.append("quantity", menuData.quantity);
       formData.append("price", menuData.price);
       formData.append("thumbnail", selectedFile);
+      formData.append("variations", JSON.stringify(flavours));
       const data = await Menu.addMenuItem(formData, token);
       if (data.status === 200) {
         closeModal();
@@ -104,6 +106,7 @@ function MenuModal({
       formData.append("isFeatured", menuData.isFeatured);
       formData.append("quantity", menuData.quantity);
       formData.append("price", menuData.price);
+      formData.append("variations", JSON.stringify(flavours));
       if (selectedFile) {
         formData.append("thumbnail", selectedFile);
       }
@@ -129,22 +132,44 @@ function MenuModal({
 
   const handleFlavourChange = (flavour: string, index: number) => {
     const flavoursCopy = [...flavours];
-    flavoursCopy[index] = flavour;
+    flavoursCopy[index] = { flavour: flavour, sizes: [] }; // Initialize sizes array
     setFlavours(flavoursCopy);
   };
-
+  
+  const handleSizeChange = (size: string, flavourIndex: number, sizeIndex: number) => {
+    const flavoursCopy = [...flavours];
+    flavoursCopy[flavourIndex].sizes[sizeIndex].size = size;
+    setFlavours(flavoursCopy);
+  };
+  
+  const handlePriceChange = (price: number, flavourIndex: number, sizeIndex: number) => {
+    const flavoursCopy = [...flavours];
+    flavoursCopy[flavourIndex].sizes[sizeIndex].price = price;
+    setFlavours(flavoursCopy);
+  };
+  
   const addFlavour = () => {
-    setFlavours([...flavours, ""]);
+    setFlavours([...flavours, { flavour: "", sizes: [] }]);
   };
-
-  const deleteFlavour = (index: number) => {
-    // Use slice instead of splice
-    const flavoursCopy = [
-      ...flavours.slice(0, index),
-      ...flavours.slice(index + 1),
-    ];
+  
+  const addSizeAndPrice = (flavourIndex: number) => {
+    const flavoursCopy = [...flavours];
+    flavoursCopy[flavourIndex].sizes.push({ size: "", price: 0 });
     setFlavours(flavoursCopy);
   };
+  
+  const deleteFlavour = (index: number) => {
+    const flavoursCopy = [...flavours.slice(0, index), ...flavours.slice(index + 1)];
+    setFlavours(flavoursCopy);
+  };
+  
+  const deleteSizeAndPrice = (flavourIndex: number, sizeIndex: number) => {
+    const flavoursCopy = [...flavours];
+    flavoursCopy[flavourIndex].sizes.splice(sizeIndex, 1);
+    setFlavours(flavoursCopy);
+  };
+  
+ 
   useEffect(() => {
     if (currentMenu) {
       setMenuData(currentMenu);
@@ -237,38 +262,66 @@ function MenuModal({
                 />
               </div>
               <div className="mb-6">
-                <p className="text-gray-400 font-bold my-1">Flavours:</p>
-                <div className="flex flex-col gap-3">
-                  {flavours.map((flavour, index) => (
-                    <div className="flex gap-2 items-center">
-                      <input
-                        placeholder="Add Flavour"
-                        value={flavour}
-                        name="flavour"
-                        type="text"
-                        onChange={(e) => {
-                          handleFlavourChange(e.target.value, index);
-                        }}
-                        className="w-full px-4 py-3 rounded-md focus:outline-none bg-[#2f2f2f]"
-                      />
-                      <button
-                        className="bg-gradient-to-r from-red-600 to-red-400 p-2 rounded-md hover:opacity-80"
-                        onClick={() => {
-                          deleteFlavour(index);
-                        }}
-                      >
-                        <MdDelete />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                <button
-                  className="bg-gradient-to-r from-red-600 to-red-400 py-2 px-2 mt-3 rounded-md hover:opacity-80"
-                  onClick={addFlavour}
-                >
-                  Add +
-                </button>
-              </div>
+  <p className="text-gray-400 font-bold my-1">Flavours:</p>
+  <div className="flex flex-col gap-3">
+    {flavours.map((flavour, flavourIndex) => (
+      <div key={flavourIndex}>
+        <div className="flex items-center">
+          <input
+            placeholder="Add Flavour"
+            value={flavour.flavour}
+            onChange={(e) => handleFlavourChange(e.target.value, flavourIndex)}
+            className="w-full px-4 py-3 rounded-md focus:outline-none bg-[#2f2f2f]"
+          />
+          <button
+            className="bg-gradient-to-r from-red-600 to-red-400 p-2 rounded-md hover:opacity-80"
+            onClick={() => deleteFlavour(flavourIndex)}
+          >
+            <MdDelete />
+          </button>
+        </div>
+        <div className="flex flex-col gap-3 mt-2">
+          {flavour.sizes.map((sizePrice, sizeIndex) => (
+            <div key={sizeIndex} className="flex gap-2 mt-2 items-center">
+              <input
+                placeholder="Size"
+                value={sizePrice.size}
+                onChange={(e) => handleSizeChange(e.target.value, flavourIndex, sizeIndex)}
+                className="w-full px-4 py-3 rounded-md focus:outline-none bg-[#2f2f2f]"
+              />
+              <input
+                placeholder="Price"
+                value={sizePrice.price}
+                onChange={(e) => handlePriceChange(parseFloat(e.target.value), flavourIndex, sizeIndex)}
+                type="number"
+                className="w-full px-4 py-3 rounded-md focus:outline-none bg-[#2f2f2f]"
+              />
+              <button
+                className="bg-gradient-to-r from-red-600 to-red-400 p-2 rounded-md hover:opacity-80"
+                onClick={() => deleteSizeAndPrice(flavourIndex, sizeIndex)}
+              >
+                <MdDelete />
+              </button>
+            </div>
+          ))}
+          <button
+            className="bg-gradient-to-r from-red-600 to-red-400 py-2 px-2 mt-3 rounded-md hover:opacity-80"
+            onClick={() => addSizeAndPrice(flavourIndex)}
+          >
+            Add Size & Price
+          </button>
+        </div>
+      </div>
+    ))}
+  </div>
+  <button
+    className="bg-gradient-to-r from-red-600 to-red-400 py-2 px-2 mt-3 rounded-md hover:opacity-80"
+    onClick={addFlavour}
+  >
+    Add Flavour
+  </button>
+</div>
+
               <div className=" w-full mb-6">
                 <p className="text-gray-400 font-bold my-1">
                   Do you want to feature this item?
