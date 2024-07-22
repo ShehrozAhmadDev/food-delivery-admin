@@ -29,7 +29,7 @@ const ListOrders = () => {
               <p className="text-white font-bold my-2 p-4">No Orders to show</p>
             ) : (
               <div className="p-4">
-                <div className="grid grid-cols-3 gap-10 gap-x-20">
+                {/* <div className="grid grid-cols-3 gap-10 gap-x-20">
                   {orders?.map((order) => (
                     <div
                       className={`text-white bg-[#212121] items-center cursor-pointer hover:opacity-75 transition-all duration-300 p-4 rounded-lg`}
@@ -63,7 +63,7 @@ const ListOrders = () => {
                       </p>
                     </div>
                   ))}
-                </div>
+                </div> */}
               </div>
             )}
           </div>

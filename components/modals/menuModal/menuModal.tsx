@@ -23,12 +23,13 @@ const initialMenu = {
   description: "",
   category: "",
   isFeatured: false,
-  price: "",
+  price: 0,
   quantity: 1,
+  flavours: [],
+  sizes: [],
+  quantities: [],
 };
 
-export interface IVariations { flavour: string , sizes: {size: string, price: number}[]}
- 
 function MenuModal({
   loading,
   isOpen,
@@ -40,7 +41,12 @@ function MenuModal({
   const [selectedFile, setSelectedFile] = useState(null);
   const [menuData, setMenuData] = useState<IMenu>(initialMenu);
   const [loadingS, setLoading] = useState(false);
-  const [flavours, setFlavours] = useState<IVariations[]>([]);
+  const [flavours, setFlavours] = useState<string[]>([]);
+  const [sizes, setSizes] = useState<{ size: string; price: number }[]>([]);
+  const [quantities, setQuantities] = useState<
+    { quantity: number; price: number }[]
+  >([]);
+
   const handleFieldChange = (e: any) => {
     setMenuData((prevData) => ({
       ...prevData,
@@ -68,12 +74,16 @@ function MenuModal({
       formData.append("quantity", menuData.quantity);
       formData.append("price", menuData.price);
       formData.append("thumbnail", selectedFile);
-      formData.append("variations", JSON.stringify(flavours));
+      formData.append("flavours", flavours);
+      formData.append("sizes", JSON.stringify(sizes));
+      formData.append("quantities", JSON.stringify(quantities));
       const data = await Menu.addMenuItem(formData, token);
       if (data.status === 200) {
         closeModal();
         setCurrentMenu(null);
         setMenuData(initialMenu);
+        setQuantities([]);
+        setSizes([]);
         toast.success("Menu Item Added");
         setSelectedFile(null);
         handleGetAllMenu();
@@ -106,7 +116,9 @@ function MenuModal({
       formData.append("isFeatured", menuData.isFeatured);
       formData.append("quantity", menuData.quantity);
       formData.append("price", menuData.price);
-      formData.append("variations", JSON.stringify(flavours));
+      formData.append("sizes", JSON.stringify(sizes));
+      formData.append("quantities", JSON.stringify(quantities));
+      formData.append("flavours", flavours);
       if (selectedFile) {
         formData.append("thumbnail", selectedFile);
       }
@@ -120,6 +132,8 @@ function MenuModal({
         toast.success("Menu Item Updated");
         setCurrentMenu(null);
         setMenuData(initialMenu);
+        setQuantities([]);
+        setSizes([]);
         setSelectedFile(null);
         handleGetAllMenu();
         setLoading(false);
@@ -130,55 +144,67 @@ function MenuModal({
     }
   };
 
-  const handleFlavourChange = (flavour: string, index: number) => {
-    const flavoursCopy = [...flavours];
-    flavoursCopy[index] = { flavour: flavour, sizes: [] }; // Initialize sizes array
-    setFlavours(flavoursCopy);
+  const handleSizeChange = (size: string, sizeIndex: number) => {
+    const sizesCopy = [...sizes];
+    sizesCopy[sizeIndex].size = size;
+    setSizes(sizesCopy);
   };
-  
-  const handleSizeChange = (size: string, flavourIndex: number, sizeIndex: number) => {
-    const flavoursCopy = [...flavours];
-    flavoursCopy[flavourIndex].sizes[sizeIndex].size = size;
-    setFlavours(flavoursCopy);
+
+  const handleSizePriceChange = (price: number, sizeIndex: number) => {
+    const sizesCopy = [...sizes];
+    sizesCopy[sizeIndex].price = price;
+    setSizes(sizesCopy);
   };
-  
-  const handlePriceChange = (price: number, flavourIndex: number, sizeIndex: number) => {
-    const flavoursCopy = [...flavours];
-    flavoursCopy[flavourIndex].sizes[sizeIndex].price = price;
-    setFlavours(flavoursCopy);
+
+  const addSizeAndPrice = () => {
+    setSizes([...sizes, { size: "", price: 0 }]);
   };
-  
-  const addFlavour = () => {
-    setFlavours([...flavours, { flavour: "", sizes: [] }]);
+
+  const deleteSizeAndPrice = (sizeIndex: number) => {
+    const sizesCopy = [
+      ...sizes.slice(0, sizeIndex),
+      ...sizes.slice(sizeIndex + 1),
+    ];
+    setSizes(sizesCopy);
   };
-  
-  const addSizeAndPrice = (flavourIndex: number) => {
-    const flavoursCopy = [...flavours];
-    flavoursCopy[flavourIndex].sizes.push({ size: "", price: 0 });
-    setFlavours(flavoursCopy);
+
+  const handleQuantityChange = (quantity: number, quantityIndex: number) => {
+    const quantityCopy = [...quantities];
+    quantityCopy[quantityIndex].quantity = quantity;
+    setQuantities(quantityCopy);
   };
-  
-  const deleteFlavour = (index: number) => {
-    const flavoursCopy = [...flavours.slice(0, index), ...flavours.slice(index + 1)];
-    setFlavours(flavoursCopy);
+
+  const handleQuantityPriceChange = (price: number, quantityIndex: number) => {
+    const quantityCopy = [...quantities];
+    quantityCopy[quantityIndex].price = price;
+    setQuantities(quantityCopy);
   };
-  
-  const deleteSizeAndPrice = (flavourIndex: number, sizeIndex: number) => {
-    const flavoursCopy = [...flavours];
-    flavoursCopy[flavourIndex].sizes.splice(sizeIndex, 1);
-    setFlavours(flavoursCopy);
+
+  const addQuantityAndPrice = () => {
+    setQuantities([...quantities, { quantity: 0, price: 0 }]);
   };
-  
- 
+
+  const deleteQuantityAndPrice = (quantityIndex: number) => {
+    const quantityCopy = [
+      ...quantities.slice(0, quantityIndex),
+      ...quantities.slice(quantityIndex + 1),
+    ];
+    setQuantities(quantityCopy);
+  };
+
   useEffect(() => {
     if (currentMenu) {
       setMenuData(currentMenu);
       if (currentMenu.flavours) setFlavours(currentMenu.flavours);
+      setQuantities(currentMenu.quantities);
+      setSizes(currentMenu.sizes);
     }
 
     return () => {
       setMenuData(initialMenu);
       setSelectedFile(null);
+      setQuantities([]);
+      setSizes([]);
     };
   }, [currentMenu]);
 
@@ -261,66 +287,122 @@ function MenuModal({
                   className="w-full px-4 py-3 rounded-md focus:outline-none bg-[#2f2f2f]"
                 />
               </div>
-              <div className="mb-6">
-  <p className="text-gray-400 font-bold my-1">Flavours:</p>
-  <div className="flex flex-col gap-3">
-    {flavours.map((flavour, flavourIndex) => (
-      <div key={flavourIndex}>
-        <div className="flex items-center">
-          <input
-            placeholder="Add Flavour"
-            value={flavour.flavour}
-            onChange={(e) => handleFlavourChange(e.target.value, flavourIndex)}
-            className="w-full px-4 py-3 rounded-md focus:outline-none bg-[#2f2f2f]"
-          />
-          <button
-            className="bg-gradient-to-r from-red-600 to-red-400 p-2 rounded-md hover:opacity-80"
-            onClick={() => deleteFlavour(flavourIndex)}
-          >
-            <MdDelete />
-          </button>
-        </div>
-        <div className="flex flex-col gap-3 mt-2">
-          {flavour.sizes.map((sizePrice, sizeIndex) => (
-            <div key={sizeIndex} className="flex gap-2 mt-2 items-center">
-              <input
-                placeholder="Size"
-                value={sizePrice.size}
-                onChange={(e) => handleSizeChange(e.target.value, flavourIndex, sizeIndex)}
-                className="w-full px-4 py-3 rounded-md focus:outline-none bg-[#2f2f2f]"
-              />
-              <input
-                placeholder="Price"
-                value={sizePrice.price}
-                onChange={(e) => handlePriceChange(parseFloat(e.target.value), flavourIndex, sizeIndex)}
-                type="number"
-                className="w-full px-4 py-3 rounded-md focus:outline-none bg-[#2f2f2f]"
-              />
-              <button
-                className="bg-gradient-to-r from-red-600 to-red-400 p-2 rounded-md hover:opacity-80"
-                onClick={() => deleteSizeAndPrice(flavourIndex, sizeIndex)}
-              >
-                <MdDelete />
-              </button>
-            </div>
-          ))}
-          <button
-            className="bg-gradient-to-r from-red-600 to-red-400 py-2 px-2 mt-3 rounded-md hover:opacity-80"
-            onClick={() => addSizeAndPrice(flavourIndex)}
-          >
-            Add Size & Price
-          </button>
-        </div>
-      </div>
-    ))}
-  </div>
-  <button
-    className="bg-gradient-to-r from-red-600 to-red-400 py-2 px-2 mt-3 rounded-md hover:opacity-80"
-    onClick={addFlavour}
-  >
-    Add Flavour
-  </button>
-</div>
+              {/* <div className="mb-6">
+                <p className="text-gray-400 font-bold my-1">Flavours:</p>
+                <div className="flex flex-col gap-3">
+                  {flavours.map((flavour, flavourIndex) => (
+                    <div key={flavourIndex}>
+                      <div className="flex items-center">
+                        <input
+                          placeholder="Add Flavour"
+                          value={flavour}
+                          onChange={(e) =>
+                            handleFlavourChange(e.target.value, flavourIndex)
+                          }
+                          className="w-full px-4 py-3 rounded-md focus:outline-none bg-[#2f2f2f]"
+                        />
+                        <button
+                          className="bg-gradient-to-r from-red-600 to-red-400 p-2 ml-2 rounded-md hover:opacity-80"
+                          onClick={() => deleteFlavour(flavourIndex)}
+                        >
+                          <MdDelete />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  className="bg-gradient-to-r from-red-600 to-red-400 py-2 px-2 mt-3 rounded-md hover:opacity-80"
+                  onClick={addFlavour}
+                >
+                  Add Flavour
+                </button>
+              </div> */}
+
+              <div className="flex flex-col gap-3 mt-2">
+                {sizes.map((size, sizeIndex) => (
+                  <div key={sizeIndex} className="flex gap-2 mt-2 items-center">
+                    <input
+                      placeholder="Size"
+                      value={size.size}
+                      onChange={(e) =>
+                        handleSizeChange(e.target.value, sizeIndex)
+                      }
+                      className="w-full px-4 py-3 rounded-md focus:outline-none bg-[#2f2f2f]"
+                    />
+                    <input
+                      placeholder="Price"
+                      value={size.price}
+                      onChange={(e) =>
+                        handleSizePriceChange(
+                          parseFloat(e.target.value),
+                          sizeIndex
+                        )
+                      }
+                      type="number"
+                      className="w-full px-4 py-3 rounded-md focus:outline-none bg-[#2f2f2f]"
+                    />
+                    <button
+                      className="bg-gradient-to-r from-red-600 to-red-400 p-2 rounded-md hover:opacity-80"
+                      onClick={() => deleteSizeAndPrice(sizeIndex)}
+                    >
+                      <MdDelete />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  className="bg-gradient-to-r from-red-600 to-red-400 py-2 px-2 mt-3 rounded-md hover:opacity-80"
+                  onClick={() => addSizeAndPrice()}
+                >
+                  Add Size & Price
+                </button>
+              </div>
+
+              <div className="flex flex-col gap-3 mt-2">
+                {quantities.map((quantity, quantityIndex) => (
+                  <div
+                    key={quantityIndex}
+                    className="flex gap-2 mt-2 items-center"
+                  >
+                    <input
+                      placeholder="Size"
+                      value={quantity.quantity}
+                      type="number"
+                      onChange={(e) =>
+                        handleQuantityChange(
+                          parseFloat(e.target.value),
+                          quantityIndex
+                        )
+                      }
+                      className="w-full px-4 py-3 rounded-md focus:outline-none bg-[#2f2f2f]"
+                    />
+                    <input
+                      placeholder="Price"
+                      value={quantity.price}
+                      onChange={(e) =>
+                        handleQuantityPriceChange(
+                          parseFloat(e.target.value),
+                          quantityIndex
+                        )
+                      }
+                      type="number"
+                      className="w-full px-4 py-3 rounded-md focus:outline-none bg-[#2f2f2f]"
+                    />
+                    <button
+                      className="bg-gradient-to-r from-red-600 to-red-400 p-2 rounded-md hover:opacity-80"
+                      onClick={() => deleteQuantityAndPrice(quantityIndex)}
+                    >
+                      <MdDelete />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  className="bg-gradient-to-r from-red-600 to-red-400 py-2 px-2 mt-3 rounded-md hover:opacity-80"
+                  onClick={() => addQuantityAndPrice()}
+                >
+                  Add Quantity & Price
+                </button>
+              </div>
 
               <div className=" w-full mb-6">
                 <p className="text-gray-400 font-bold my-1">

@@ -48,7 +48,7 @@ const LoginForm = () => {
     <div className="w-full flex justify-center items-center h-[calc(100vh-160px)] text-black ">
       <div className="w-full max-w-md m-4 p-8 bg-[#212121] rounded-lg shadow-2xl text-white">
         <h2 className="text-3xl font-semibold mb-6 text-center gradient-text">
-          Login
+          Admin Login
         </h2>
         <form onSubmit={handleLogin}>
           <div className="mb-6">

@@ -10,7 +10,7 @@ const DashboardContent = () => {
       <div className="grid grid-cols-2 gap-6">
         <div className="bg-[#212121] p-8 rounded-lg ">
           <p className="text-xl font-semibold mb-4">Name</p>
-          <p>Admin</p>
+          <p>{user?.fullName}</p>
         </div>
         <div className="bg-[#212121] p-8 rounded-lg ">
           <p className="text-xl font-semibold mb-4">Email</p>

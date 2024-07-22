@@ -1,6 +1,10 @@
 import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
 import { MdOutlineDashboardCustomize } from "react-icons/md";
 import { GoListUnordered } from "react-icons/go";
+import { MdDeliveryDining } from "react-icons/md";
+import { PiCards } from "react-icons/pi";
+import { LuMenuSquare } from "react-icons/lu";
+
 import { HiOutlineUsers } from "react-icons/hi";
 
 export const sideBarItems = [
@@ -17,17 +21,17 @@ export const sideBarItems = [
   {
     title: "Orders",
     link: "/admin/orders",
-    logo: <GoListUnordered />,
+    logo: <MdDeliveryDining />,
   },
   {
     title: "Menu",
     link: "/admin/menu",
-    logo: <GoListUnordered />,
+    logo: <LuMenuSquare />,
   },
   {
     title: "Banners",
     link: "/admin/banner",
-    logo: <HiOutlineUsers />,
+    logo: <PiCards />,
   },
   {
     title: "AddOn",
